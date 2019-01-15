@@ -1,0 +1,35 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/upload-component/upload-component.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<dom-module id="admin-page">
+ <template>
+     <style>
+     
+     </style>
+     <h3>Upload Album</h3>
+     <paper-input label="Album name"></paper-input>
+     <h3>Upload songs</h3>
+    <upload-component request-file-url="[[requestFileUrl]]" request-db-url="[[requestDbUrl]]" ></upload-component>
+    
+ </template>
+ <script>
+     class AdminPage extends Polymer.Element{
+         static get is(){
+             return "admin-page"
+         }
+         static get properties(){
+             return {
+                requestFileUrl:{
+                    type:String,
+                    value:""
+                },
+                requestDbUrl:{
+                    type:String,
+                    value:""
+                }
+             }
+         }
+     }
+     window.customElements.define(AdminPage.is,AdminPage);
+ </script>
+</dom-module>

@@ -2,9 +2,11 @@
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/app-route/app-route.html">
 <link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../bower_components/music-component/music-component.html">
 
-<link rel="import" href="list-page.html">
-
+<link rel="lazy-import" href="list-page.html">
+<link rel="lazy-import" href="admin-page.html">
+<link rel="import" href="navbar-view.html">
 <dom-module id="music-application-app">
   <template>
     <style>
@@ -12,70 +14,30 @@
         display: block;
       }
 
-      .sidenav {
-        height: 100%;
-        width: 200px;
-        position: fixed;
-        z-index: 1;
-        top: 0;
-        left: 0;
-        background-color: #111;
-        overflow-x: hidden;
-        padding-top: 20px;
-        display: none;
-      }
-
-      .sidenav a {
-        padding: 6px 8px 6px 16px;
-        text-decoration: none;
-        font-size: 25px;
-        color: #818181;
-        display: block;
-      }
-
-      .sidenav a:hover {
-        color: #f1f1f1;
-      }
-
-      .main {
-        margin-left: 200px;
-        /* Same as the width of the sidenav */
-        font-size: 28px;
-        /* Increased text to enable scrolling */
-        padding: 0px 10px;
-      }
-
-      @media screen and (max-height: 450px) {
-        .sidenav {
-          padding-top: 15px;
-        }
-
-        .sidenav a {
-          font-size: 18px;
+      music-component {
+        --player-container-style: {
+          position: fixed;
+          bottom: 0;
+          z-index: 100;
+          width: 100%;
+          background-color: #1C1426;
+      
         }
       }
     </style>
-    <app-location route="{{route}}">
-    </app-location>
+    <app-location route="{{route}}"></app-location>
 
     <app-route route="{{route}}" pattern="/:type/:subType" data="{{routeData}}" tail="{{subroute}}">
     </app-route>
-   
-    <a name="list-page" href="/list-page/main">List</a>
-
-    <div class="sidenav">
- 
-      <a href="#services">Services</a>
-      <a href="#clients">Clients</a>
-      <a href="#contact">Contact</a>
-    </div>
     <div class="main">
-
+      <iron-pages selected="[[page]]" attr-for-selected="name" fallback-selection="page404" role="main">
+        <list-page name="list-page" on-song-selected="selectSong"></list-page>
+        <admin-page name="admin-page" request-file-url="http://localhost:8000/tracks" request-db-url="http://localhost:8000/song"></admin-page>
     </div>
-    <iron-pages selected="[[page]]" attr-for-selected="name" fallback-selection="page404" role="main">
-      <list-page name="list-page"></list-page>
     </iron-pages>
-
+    <div class="player-container">
+        <music-component invisible-ctrl-buttons="true" invisible-controls="true" song-url="http://localhost:8000/track/"></music-component>
+      </div>
   </template>
 
   <script>
@@ -105,15 +67,14 @@
         ];
       }
 
-
       _routePageChanged(page) {
-        this.page = page|| "list-page";
+        
+        this.page = page || "list-page";
       }
 
       _pageChanged(page) {
         const resolvedUrl = this.resolveUrl(page + ".html");
         console.log(resolvedUrl);
-        
         Polymer.importHref(
           resolvedUrl,
           null,
@@ -126,8 +87,12 @@
         this.page = "page404"
       }
 
-
-
+      selectSong(event){
+        const musicComponent=this.shadowRoot.querySelector("music-component");
+        musicComponent.trackUrl=`${musicComponent.songUrl}${event.detail.songUrl}`
+        musicComponent.set("songName",event.detail.songUrl);
+        musicComponent.selectSong();
+      }
     }
 
     window.customElements.define(MusicApplicationApp.is, MusicApplicationApp);

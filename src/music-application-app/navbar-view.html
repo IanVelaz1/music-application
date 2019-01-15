@@ -1,0 +1,63 @@
+<link rel="stylesheet" href="../../bower_components/polymer/polymer-element.html">
+<dom-module id="navbar-view">
+    <template>
+        <style>
+            :host{
+                display: block;
+            }
+            .sidenav {
+                height: 100%;
+                width: 200px;
+                position: fixed;
+                z-index: 1;
+                top: 0;
+                left: 0;
+                background-color: #1C1426;
+                overflow-x: hidden;
+                padding-top: 20px;
+
+            }
+
+            .sidenav a {
+                padding: 6px 8px 6px 16px;
+                text-decoration: none;
+                font-size: 25px;
+                color: #818181;
+                display: block;
+            }
+
+            .sidenav a:hover {
+                color: #f1f1f1;
+            }
+
+            @media screen and (max-height: 450px) {
+                .sidenav {
+                    padding-top: 15px;
+                }
+
+                .sidenav a {
+                    font-size: 18px;
+                }
+            }
+        </style>
+        <div class="sidenav">
+            <a name="list-page" href="/list-page/main">List</a>
+            <a href="#services">Services</a>
+            <a href="#clients">Clients</a>
+            <a href="#contact">Contact</a>
+        </div>
+    </template>
+    <script>
+        class NavbarView extends Polymer.Element {
+            static get is() {
+                return "navbar-view"
+            }
+            static get properties() {
+                return {
+                    
+                }
+            }
+        }
+        window.customElements.define(NavbarView.is, NavbarView);
+    </script>
+</dom-module>
