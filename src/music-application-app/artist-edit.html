@@ -1,0 +1,175 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/polymer/lib/elements/dom-repeat.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+
+
+
+<dom-module id="artist-edit">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+
+            .selectedAlbum {
+                background-color: darkcyan;
+                border-radius: 5px;
+                color: white;
+                font-weight: bold;
+            }
+            .listElement {
+                transition: 0.2s;
+            }
+
+            .listElement:hover {
+                background-color: black;
+                color: white;
+                cursor: pointer;
+            }
+            .container{
+                background-color: white;
+                position: relative;
+                z-index: 200;
+                width: 100%;
+                height: 100vh;
+            }
+
+        </style>
+        <app-location route="{{route}}"></app-location>
+
+        <app-route route="{{route}}" pattern="/:type/:subType" data="{{routeData}}" tail="{{subroute}}">
+            <iron-ajax id="getArtist" method="get" on-response="artistRecovered" on-error="errorRecoveringArtist"
+                handle-as="json"></iron-ajax>
+            <iron-ajax id="editArtist" method="put" url="[[putArtistUrl]]" content-type="application/json" handle-as="json"
+                on-response="songEdited" on-error="error-editing"></iron-ajax>
+                <iron-ajax id="albumsRequest" auto method="get" url="[[albumsUrl]]" handle-as="json" on-response="albumsResponse"
+                on-error="albumError">
+            </iron-ajax>
+
+            <div class="container">
+                <paper-input label="artist name" value="{{artistObject.artistName}}"></paper-input>
+                <paper-input label="artist image" value="{{artistObject.artistImage}}"></paper-input>
+                <paper-input label="albums" value="{{albumsSearchArgument}}"></paper-input>
+                <div class="selectedAlbumsContainer">
+                    <dom-repeat id="selectedAlbumsRepeat" items="[[selectedAlbums]]" as="album">
+                        <template>
+                            <p class="selectedAlbum">[[album.albumName]]</p>
+                        </template>
+                    </dom-repeat>
+                </div>
+                <div class="listContainer" hidden$="[[hiddenAlbumList]]">
+                        <dom-repeat items="[[albumsArray]]" as="album" filter="{{filterAlbums(albumsSearchArgument)}}">
+                            <template>
+                                <p class="listElement" on-click="setAlbum">[[album.albumName]]</p>
+                            </template>
+                        </dom-repeat>
+                    </div>
+            </div>
+    </template>
+    <script>
+        class ArtistEdit extends Polymer.Element {
+            static get is() {
+                return "artist-edit"
+            }
+            static get properties() {
+                return {
+                    getArtistUrl: {
+                        type: String,
+                        value: ""
+                    },
+                    putArtistUrl: {
+                        type: String,
+                        value: ""
+                    },
+                    routeData: Object,
+                    artistObject: {
+                        type: Object,
+                        value() {
+                            return {
+                                artistName: "",
+                                artistImage: "",
+                                artistAlbums: []
+                            }
+                        }
+                    },
+                    selectedAlbums: {
+                        type: Array,
+                        value() {
+                            return []
+                        }
+                    },
+                    albumsUrl:{
+                        type:String,
+                        value:""
+                    },
+                    albumsArray:{
+                        type:Array,
+                        value(){
+                            return []
+                        }
+                    },
+                    albumsSearchArgument:{
+                        type:String,
+                        value:"",
+                        observer:"albumsSearchChanged"
+                    },
+                    hiddenAlbumList:{
+                        type:Boolean,
+                        value:true
+                    }
+                }
+            }
+
+            static get observers() {
+                return [
+                    '_artistIdchanged(routeData.subType)'
+                ];
+            }
+
+            ready() {
+                super.ready();
+
+            }
+
+            _artistIdchanged(id) {
+                let requestUrl = this.getArtistUrl;
+                this.$.getArtist.url = this.getArtistUrl + "/" + id;
+                console.log(this.getArtistUrl);
+                this.$.getArtist.generateRequest();
+            }
+
+            artistRecovered(event) {
+                this.set("artistObject", event.detail.response.artist);
+                this.set("selectedAlbums", event.detail.response.artist.artistAlbums)
+            }
+
+            albumsResponse(event){
+                this.set("albumsArray",event.detail.response.albums);
+                console.log(this.albumsArray);
+                
+            }
+
+            albumsSearchChanged(){
+                if(this.albumsSearchArgument.length<1){
+                    this.set("hiddenAlbumList",true)
+                }else{
+                    this.set("hiddenAlbumList",false)
+                }
+            }
+
+            setAlbum(event){
+                this.push("selectedAlbums",event.model.__data.album);
+                this.set("artistObject.artistAlbums",this.selectedAlbums);
+                this.set("hiddenAlbumList",true)
+            }
+
+
+
+        }
+        window.customElements.define(ArtistEdit.is, ArtistEdit);
+    </script>
+</dom-module>

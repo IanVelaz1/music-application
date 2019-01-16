@@ -1,0 +1,192 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/polymer/lib/elements/dom-repeat.html">
+
+<dom-module id="admin-page-edit">
+    <template>
+        <style>
+            :host {
+                display: block;
+                
+            }
+            .container{
+                width:100%;
+                position: relative;
+                z-index: 400;
+                height: 100vh;
+                background-color: white;
+            }
+            .subContainer{
+                background-color: white;
+                width: 100%;
+            }
+            .list-element{
+                background-color: cadetblue;
+                padding:10px;
+                font-size: 105%;
+                font-weight: bold;
+                transition: 0.3s;
+                text-decoration: none;
+                width: 100%;
+            }
+            .list-element:hover {
+                background-color: darkcyan;
+                color: white;
+                cursor: pointer;
+    
+            }
+            .text{
+                text-decoration: none;
+                color: black;
+                margin-bottom: 10px;
+                
+                padding: 15px;
+                width: 100%
+            }
+            
+        </style>
+        <iron-ajax id="albumRequest" auto url="[[albumRequestUrl]]" method="get" handle-as="json" on-response="albumsResponse"
+            on-error="albumsError"></iron-ajax>
+        <iron-ajax id="artistRequest" auto url="[[artistRequestUrl]]" method="get" handle-as="json" on-response="artistResponse"
+            on-error="artistError"></iron-ajax>
+        <iron-ajax id="songsRequest" auto url="[[songRequestUrl]]" method="get" handle-as="json" on-response="songResponse"
+            on-error="songError"></iron-ajax>
+        <div class="container">
+            <div class="subContainer">
+                <paper-input label="search song" value="{{songSearchArgument}}"></paper-input>
+                <br>
+                <dom-repeat items="[[songsArray]]" as="song" filter="{{filterSong(songSearchArgument)}}">
+                    <template>
+                        <div class="list-element"><a class="text" href="/song-edit/[[song._id]]">[[song.songName]]</a></div>
+                    </template>
+                </dom-repeat>
+            </div>
+            <div class="subContainer">
+                    <paper-input label="search album" value="{{albumSearchArgument}}"></paper-input>
+                    <br>
+                    <dom-repeat items="[[albumsArray]]" as="album" filter="{{filterAlbum(albumSearchArgument)}}">
+                        <template>
+                            <div class="list-element"><a class="text" href="/album-edit/[[album._id]]">[[album.albumName]]</a></div>
+                        </template>
+                    </dom-repeat>
+            </div>
+            <div class="subContainer">
+                    <paper-input label="search artist" value="{{artistSearchArgument}}"></paper-input>
+                    <br>
+                    <dom-repeat items="[[artistArray]]" as="artist" filter="{{filterArtist(artistSearchArgument)}}">
+                        <template>
+                            <div class="list-element"><a class="text" href="/artist-edit/[[artist._id]]">[[artist.artistName]]</a></div>
+                        </template>
+                    </dom-repeat>
+            </div>
+            <div class="subContainer"></div>
+        </div>
+    </template>
+    <script>
+        class adminPageEdit extends Polymer.Element {
+            static get is() {
+                return "admin-page-edit"
+            }
+            static get properties() {
+                return {
+                    albumRequestUrl: {
+                        type: String,
+                        value: ""
+                    },
+                    artistRequestUrl: {
+                        type: String,
+                        value: ""
+                    },
+                    songRequestUrl: {
+                        type: String,
+                        value: ""
+                    },
+                    songsArray:{
+                        type:Array,
+                        value(){
+                            return []
+                        }
+                    },
+                    albumsArray:{
+                        type:Array,
+                        value(){
+                            return []
+                        }
+                    },
+                    artistArray:{
+                        type:Array,
+                        value(){
+                            return []
+                        }
+                    },
+                    songSearchArgument:{
+                        type:String,
+                        value:""
+                    },
+                    artistSearchArgument:{
+                        type:String,
+                        value:""
+                    },
+                    albumSearchArgument:{
+                        type:String,
+                        value:""
+                    }
+                }
+            }
+            albumsResponse(event) {
+                console.log(event.detail.response)
+                this.set("albumsArray",event.detail.response.albums);
+            }
+            albumsError(event) {
+                console.log(event.detail.error)
+            }
+            artistResponse(event) {
+                console.log(event.detail.response)
+                this.set("artistArray",event.detail.response.artist)
+            }
+            artistError(event) {
+                console.log(event.detail.error)
+            }
+            songResponse(event) {
+                console.log(event.detail.response)
+                this.set("songsArray",event.detail.response.songs)
+            }
+            songError(event) {
+                console.log(event.detail.error)
+            }
+
+            filterSong(searchArgument){
+                if(!searchArgument){
+                    return null;
+                }else{
+                    return function(songs){
+                        return songs.songName.includes(searchArgument);
+                    }
+                }
+            }
+
+            filterAlbum(searchArgument){
+                if(!searchArgument){
+                    return null;
+                }else{
+                    return function(albums){
+                        return albums.albumName.includes(searchArgument);
+                    }
+                }
+            }
+
+            filterArtist(searchArgument){
+                if(!searchArgument){
+                    return null;
+                }else{
+                    return function(artists){
+                        return artists.artistName.includes(searchArgument);
+                    }
+                }
+            }
+
+        }
+        window.customElements.define(adminPageEdit.is, adminPageEdit);
+    </script>
+</dom-module>

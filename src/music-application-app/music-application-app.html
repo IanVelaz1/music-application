@@ -4,8 +4,10 @@
 <link rel="import" href="../../bower_components/app-route/app-location.html">
 <link rel="import" href="../../bower_components/music-component/music-component.html">
 
-<link rel="lazy-import" href="list-page.html">
+<link rel="import" href="list-page.html">
 <link rel="lazy-import" href="admin-page.html">
+<link rel="lazy-import" href="admin-page-edit.html">
+<link rel="lazy-import" href="artist-edit.html">
 <link rel="import" href="navbar-view.html">
 <dom-module id="music-application-app">
   <template>
@@ -13,7 +15,7 @@
       :host {
         display: block;
       }
-
+    
       music-component {
         --player-container-style: {
           position: fixed;
@@ -33,6 +35,8 @@
       <iron-pages selected="[[page]]" attr-for-selected="name" fallback-selection="page404" role="main">
         <list-page name="list-page" on-song-selected="selectSong"></list-page>
         <admin-page name="admin-page" request-file-url="http://localhost:8000/tracks" request-db-url="http://localhost:8000/song"></admin-page>
+        <admin-page-edit name="admin-page-edit" album-request-url="http://localhost:8000/album" song-request-url="http://localhost:8000/song" artist-request-url="http://localhost:8000/artists"></admin-page-edit>
+        <artist-edit name="artist-edit" get-artist-url="http://localhost:8000/artists" albums-url="http://localhost:8000/album"></artist-edit>
     </div>
     </iron-pages>
     <div class="player-container">
@@ -70,11 +74,13 @@
       _routePageChanged(page) {
         
         this.page = page || "list-page";
+        
+        
       }
 
       _pageChanged(page) {
         const resolvedUrl = this.resolveUrl(page + ".html");
-        console.log(resolvedUrl);
+        
         Polymer.importHref(
           resolvedUrl,
           null,
