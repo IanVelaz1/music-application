@@ -1,10 +1,13 @@
 <link rel="stylesheet" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+
 <dom-module id="navbar-view">
     <template>
         <style>
-            :host{
+            :host {
                 display: block;
             }
+
             .sidenav {
                 height: 100%;
                 width: 200px;
@@ -12,21 +15,22 @@
                 z-index: 1;
                 top: 0;
                 left: 0;
-                background-color: #1C1426;
+                background-color: rgb(14, 0, 48);
                 overflow-x: hidden;
                 padding-top: 20px;
-
             }
 
             .sidenav a {
                 padding: 6px 8px 6px 16px;
                 text-decoration: none;
                 font-size: 25px;
-                color: #818181;
+                color: #b4b3b3;
                 display: block;
+                transition: 0.2s;
             }
 
             .sidenav a:hover {
+                font-size: 26px;
                 color: #f1f1f1;
             }
 
@@ -39,12 +43,29 @@
                     font-size: 18px;
                 }
             }
+
+            .userContainer {
+                background-color: rgba(0, 0, 0, 0);
+                height: 150px;
+            }
         </style>
+        <iron-ajax id="getUserRequest" method="get" url="[[getUserUrl]]" handle-as="json" on-response="userRecovered"
+            on-error="errorRecovered">
+        </iron-ajax>
         <div class="sidenav">
+            <div class="userContainer" style="text-align: center; ">
+                <img src="https://centrik.in/wp-content/uploads/2017/02/user-image-.png" style="max-height: 70%; color: white;"
+                    alt="">
+                <div class="userText" hidden$="[[userNotLogged]]">
+                    <a name="login-page" href="/list-page/[[userObject._id]]">[[userObject.userName]]</a>
+                </div>
+                <div class="loginText" hidden$="[[userLogged]]">
+                    <a name="login-page" href="/login-page/main">Login/Register</a>
+                </div>
+            </div>
             <a name="list-page" href="/list-page/main">List</a>
             <a href="#services">Services</a>
-            <a href="#clients">Clients</a>
-            <a href="#contact">Contact</a>
+            <a name="admin-page" href="/admin-page/main">Admin</a>
         </div>
     </template>
     <script>
@@ -54,8 +75,49 @@
             }
             static get properties() {
                 return {
-                    
+                    getUserUrl: {
+                        type: String,
+                        value: ""
+                    },
+                    userObject: {
+                        type: String,
+                        value() {
+                            return {}
+                        }
+                    },
+                    userLogged: {
+                        type: Boolean,
+                        value: false
+                    },
+                    userNotLogged: {
+                        type: Boolean,
+                        value: false
+                    }
                 }
+            }
+            connectedCallback() {
+                super.connectedCallback();
+                let id = localStorage.getItem("userId");
+                if (id.length > 1) {
+                    let requestUrl = "http://localhost:8000/user/" + id;
+                    this.$.getUserRequest.url = requestUrl;
+                    this.$.getUserRequest.generateRequest();
+                } else {
+                    this.set("userLogged", false);
+                    this.set("userNotLogged", true);
+                }
+
+
+            }
+
+            userRecovered(event) {
+                let user = event.detail.response.user;
+                if (user._id.length > 1) {
+                    this.set("userObject", user);
+                    this.set("userLogged", true);
+                    this.set("userNotLogged", false);
+                }
+
             }
         }
         window.customElements.define(NavbarView.is, NavbarView);

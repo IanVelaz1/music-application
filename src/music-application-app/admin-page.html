@@ -1,5 +1,5 @@
-<link rel="import" href="../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../../bower_components/upload-component/upload-component.html">
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
@@ -12,7 +12,7 @@
             }
 
             .container {
-               
+
                 position: relative;
                 background-color: white;
                 width: 100%;
@@ -34,27 +34,29 @@
                 color: white;
                 cursor: pointer;
             }
-            
-            .selectedAlbum{
+
+            .selectedAlbum {
                 background-color: darkcyan;
                 border-radius: 5px;
                 color: white;
                 font-weight: bold;
             }
-
         </style>
         <div class="container">
+            <br>
+            <a style="color: white; text-decoration: none; background-color: darkslateblue; padding: 15px;" href="/admin-page-edit/main">Edit
+                properties</a>
             <h3>Upload Artist</h3>
             <paper-input label="Artist name" value="{{artistObject.artistName}}"></paper-input>
             <paper-input label="Artist image" value="{{artistObject.artistImage}}"></paper-input>
             <paper-input label="Albums" value="{{albumsSearchArgument}}"></paper-input>
-             <div class="selectedAlbumsContainer">
-                 <dom-repeat id="selectedAlbumsRepeat" items="[[selectedAlbums]]" as="album">
-                     <template>
+            <div class="selectedAlbumsContainer">
+                <dom-repeat id="selectedAlbumsRepeat" items="[[selectedAlbums]]" as="album">
+                    <template>
                         <p class="selectedAlbum">[[album.albumName]]</p>
-                     </template>
-                 </dom-repeat>
-             </div>
+                    </template>
+                </dom-repeat>
+            </div>
             <div class="listContainer" hidden$="[[hiddenAlbumList]]">
                 <dom-repeat items="[[albumsArray]]" as="album" filter="{{filterAlbums(albumsSearchArgument)}}">
                     <template>
@@ -81,7 +83,8 @@
 
 
             <h3>Upload songs</h3>
-            <upload-component request-file-url="[[requestFileUrl]]" request-db-url="[[requestDbUrl]]"></upload-component>
+            <upload-component request-file-url="[[requestFileUrl]]" request-db-url="[[requestDbUrl]]" artist-array="[[artistArray]]"
+                album-array="[[albumsArray]]"></upload-component>
         </div>
         <iron-ajax id="postRequest" method="post" url="[[postUrl]]" content-type="application/json" handle-as="json"
             on-response="postResponse" on-error="postError"></iron-ajax>
@@ -146,7 +149,7 @@
                             return {
                                 artistName: "",
                                 artistImage: "",
-                                artistAlbums:[]
+                                artistAlbums: []
                             }
                         }
                     },
@@ -185,17 +188,17 @@
                     artistSearchArgument: {
                         type: String,
                         value: "",
-                        observer:"artistSearchChanged"
+                        observer: "artistSearchChanged"
                     },
                     albumsSearchArgument: {
                         type: String,
                         value: "",
-                        observer:"albumsSearchChanged"
+                        observer: "albumsSearchChanged"
                     },
-                    selectedAlbums:{
-                        type:Array,
-                        value(){
-                            return[]
+                    selectedAlbums: {
+                        type: Array,
+                        value() {
+                            return []
                         }
                     }
                 }
@@ -216,13 +219,13 @@
             albumsResponse(event) {
                 const albums = event.detail.response.albums;
                 this.set("albumsArray", albums)
-               
+
             }
 
             artistResponse(event) {
                 const artistArray = event.detail.response.artist;
                 this.set("artistArray", artistArray)
-                
+
             }
 
             filterAlbums(albumName) {
@@ -245,32 +248,32 @@
                 }
             }
 
-            artistSearchChanged(){
-                if(this.artistSearchArgument.length<1){
-                    this.set("hiddenArtistList",true);
-                }else{
-                    this.set("hiddenArtistList",false);
+            artistSearchChanged() {
+                if (this.artistSearchArgument.length < 1) {
+                    this.set("hiddenArtistList", true);
+                } else {
+                    this.set("hiddenArtistList", false);
                 }
             }
 
-            albumsSearchChanged(){
-                if(this.albumsSearchArgument.length<1){
-                    this.set("hiddenAlbumList",true)
-                }else{
-                    this.set("hiddenAlbumList",false)
+            albumsSearchChanged() {
+                if (this.albumsSearchArgument.length < 1) {
+                    this.set("hiddenAlbumList", true)
+                } else {
+                    this.set("hiddenAlbumList", false)
                 }
             }
 
-            setArtist(event){
-                this.set("albumObject.albumArtist",event.model.__data.artist);
-                this.set("artistSearchArgument",this.albumObject.albumArtist.artistName);
-                this.set("hiddenArtistList",true);
+            setArtist(event) {
+                this.set("albumObject.albumArtist", event.model.__data.artist);
+                this.set("artistSearchArgument", this.albumObject.albumArtist.artistName);
+                this.set("hiddenArtistList", true);
             }
 
-            setAlbum(event){
-                this.push("selectedAlbums",event.model.__data.album);
-                this.set("artistObject.artistAlbums",this.selectedAlbums);
-                this.set("hiddenAlbumList",true)
+            setAlbum(event) {
+                this.push("selectedAlbums", event.model.__data.album);
+                this.set("artistObject.artistAlbums", this.selectedAlbums);
+                this.set("hiddenAlbumList", true)
             }
 
         }

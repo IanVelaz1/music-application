@@ -1,0 +1,93 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/login-music/login-music.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+
+<link rel="import" href="./navbar-view.html">
+
+<dom-module id="login-page">
+    <template>
+        <style>
+            :host {
+                display: block;
+                width: 100%;
+                height: 100vh;
+                background: #5f2c82;
+                /* fallback for old browsers */
+                background: -webkit-linear-gradient(to bottom, #49a09d, #5f2c82);
+                /* Chrome 10-25, Safari 5.1-6 */
+                background: linear-gradient(to bottom, #49a09d, #5f2c82);
+                /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+            }
+
+            login-component {}
+
+            .container {
+                margin-left: 200px;
+            }
+        </style>
+        <br>
+        <iron-ajax id="userRegisterUrl" method="post" url="[[userRegisterUrl]]" handle-as="json" on-response="userRegistered"
+            on-error="userRegisterError" content-type="application/json"></iron-ajax>
+        <iron-ajax id="userLoginRequest" method="post" on-response="userLogin" on-error="userLoginError" handle-as="json"
+            content-type="application/json"></iron-ajax>
+        <navbar-view></navbar-view>
+        <div class="container">
+            <login-music on-login-user="logInUser" on-register-user="registerUser"></login-music>
+            <paper-toast id="confirmToast">User registered</paper-toast>
+        </div>
+    </template>
+    <script>
+        class LoginPage extends Polymer.Element {
+            static get is() {
+                return "login-page"
+            }
+            static get properties() {
+                return {
+                    userRegisterUrl: {
+                        type: String,
+                        value: ""
+                    },
+                    userLoginUrl: {
+                        type: String,
+                        value: ""
+                    }
+                }
+            }
+
+            logInUser(event) {
+                let requestUrl = this.userLoginUrl;
+                this.$.userLoginRequest.url = requestUrl + "/" + event.detail.userEmail;
+                this.$.userLoginRequest.body = event.detail;
+                this.$.userLoginRequest.generateRequest();
+            }
+
+            registerUser(event) {
+                this.$.userRegisterUrl.body = event.detail;
+                this.$.userRegisterUrl.generateRequest();
+            }
+
+            userRegistered(event) {
+                this.$.confirmToast.show();
+            }
+
+            userRegisterError(event) {
+                console.log(event.detail.response);
+
+            }
+
+            userLogin(event) {
+                let userObject = event.detail.response.user[0];
+                localStorage.clear();
+                localStorage.setItem("userId", userObject._id);
+                location.reload();
+            }
+
+            userLoginError(event) {
+                console.log(event.detail.response);
+
+            }
+        }
+        window.customElements.define(LoginPage.is, LoginPage)
+    </script>
+</dom-module>

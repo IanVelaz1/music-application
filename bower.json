@@ -6,7 +6,9 @@
     "upload-component": "jusolete/upload-component",
     "iron-pages": "PolymerElements/iron-pages#2.1.1",
     "app-route": "PolymerElements/app-route#2.1.2",
-    "music-component": "jusolete/music-component-for-app"
+    "music-component": "jusolete/music-component-for-app",
+    "login-music": "HAlejandro88/login-music",
+    "paper-toast": "PolymerElements/paper-toast#2.1.2"
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#^6.0.0",

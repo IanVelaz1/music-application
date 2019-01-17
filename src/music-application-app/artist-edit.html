@@ -44,7 +44,7 @@
         <app-route route="{{route}}" pattern="/:type/:subType" data="{{routeData}}" tail="{{subroute}}">
             <iron-ajax id="getArtist" method="get" on-response="artistRecovered" on-error="errorRecoveringArtist"
                 handle-as="json"></iron-ajax>
-            <iron-ajax id="editArtist" method="put" url="[[putArtistUrl]]" content-type="application/json" handle-as="json"
+            <iron-ajax id="editArtist" method="put" content-type="application/json" handle-as="json"
                 on-response="songEdited" on-error="error-editing"></iron-ajax>
                 <iron-ajax id="albumsRequest" auto method="get" url="[[albumsUrl]]" handle-as="json" on-response="albumsResponse"
                 on-error="albumError">
@@ -58,6 +58,7 @@
                     <dom-repeat id="selectedAlbumsRepeat" items="[[selectedAlbums]]" as="album">
                         <template>
                             <p class="selectedAlbum">[[album.albumName]]</p>
+                            <button on-click="deleteAlbum">delete</button>
                         </template>
                     </dom-repeat>
                 </div>
@@ -68,6 +69,8 @@
                             </template>
                         </dom-repeat>
                     </div>
+                    <br>
+                    <paper-button on-tap="saveChanges">Save changes</paper-button>
             </div>
     </template>
     <script>
@@ -138,7 +141,7 @@
             _artistIdchanged(id) {
                 let requestUrl = this.getArtistUrl;
                 this.$.getArtist.url = this.getArtistUrl + "/" + id;
-                console.log(this.getArtistUrl);
+                
                 this.$.getArtist.generateRequest();
             }
 
@@ -149,7 +152,7 @@
 
             albumsResponse(event){
                 this.set("albumsArray",event.detail.response.albums);
-                console.log(this.albumsArray);
+                
                 
             }
 
@@ -165,6 +168,26 @@
                 this.push("selectedAlbums",event.model.__data.album);
                 this.set("artistObject.artistAlbums",this.selectedAlbums);
                 this.set("hiddenAlbumList",true)
+            }
+
+            saveChanges(){
+                this.set("artistObject.artistAlbums",this.selectedAlbums);
+                this.$.editArtist.body=this.artistObject;
+                let putUrl=this.putArtistUrl+"/"+this.routeData.subType;
+                this.$.editArtist.url=putUrl;
+                this.$.editArtist.generateRequest();
+                
+            }
+
+            deleteAlbum(event){
+                let albums=this.selectedAlbums;
+                albums.splice(event.model.__data.index,1);
+                this.set("selectedAlbums",albums)
+                this.$.selectedAlbumsRepeat.render();
+            }
+
+            songEdited(){
+                location.reload();
             }
 
 
