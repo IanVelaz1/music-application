@@ -7,7 +7,7 @@
     "iron-pages": "PolymerElements/iron-pages#2.1.1",
     "app-route": "PolymerElements/app-route#2.1.2",
     "music-component": "jusolete/music-component-for-app",
-    "login-music": "HAlejandro88/login-music",
+    "login-music": "jusolete/music-login-app",
     "paper-toast": "PolymerElements/paper-toast#2.1.2"
   },
   "devDependencies": {
