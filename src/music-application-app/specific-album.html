@@ -1,0 +1,158 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/music-list/music-list.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/list-music/list-music.html">
+<link rel="import" href="../../src/music-application-app/navbar-view.html">
+
+<dom-module id="specific-album">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+
+            .container {
+                background: #833ab4;
+                /* fallback for old browsers */
+                background: -webkit-linear-gradient(to bottom, #fcb045, #fd1d1d, #833ab4);
+                /* Chrome 10-25, Safari 5.1-6 */
+                background: linear-gradient(to bottom, #fcb045, #fd1d1d, #833ab4);
+                /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+                height: 100vh;
+                margin-left: 200px;
+            }
+
+            .subContainer {
+                padding: 10px;
+            }
+        </style>
+        <navbar-view></navbar-view>
+        <iron-ajax id="getAlbumRequest" method="get" handle-as="json" on-response="albumRecovered" on-error="errorRecoveringAlbum"></iron-ajax>
+        <iron-ajax id="getSongsRequest" method="get" handle-as="json" on-response="songsRecovered" on-error="errorRecoveringSongs"></iron-ajax>
+        <iron-ajax
+         id="putUserRequest"
+         method="put"
+         handle-as="json"
+         content-type="application/json"
+         on-response="userEdited"
+         on-error="userEditedError"
+        ></iron-ajax>
+        <div class="container">
+            <div class="subContainer">
+                <list-music songs-array="[[songsArray]]" album-object="[[albumObject]]" on-song-selected="songSelected" on-user-song-saved="saveUserSong"></list-music>
+            </div>
+            <paper-toast id="toast">Song added to user</paper-toast>
+
+        </div>
+
+    </template>
+    <script>
+        class SpecificAlbum extends Polymer.Element {
+            static get is() {
+                return "specific-album"
+            }
+
+            static get properties() {
+                return {
+                    albumRequestUrl: {
+                        type: String,
+                        value: ""
+                    },
+                    songsRequestUrl: {
+                        type: String,
+                        value: "http://localhost:8000/song/album"
+                    },
+                    routeData: Object,
+                    albumObject: {
+                        type: Object,
+                        value() {
+                            return {}
+                        }
+                    },
+                    songsArray:{
+                        type:Array,
+                        value(){
+                            return []
+                        }
+                    },
+                    putUserRequest:{
+                        type:String,
+                        value:"http://localhost:8000/users"
+                    },
+                    userObject:{
+                        type:Object,
+                        value(){
+                            return {}
+                        }
+                    }
+                }
+            }
+
+            static get observers() {
+                return [
+                    'routeDataChanged(routeData.subType)'
+                ]
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+                let url = this.albumRequestUrl;
+                this.$.getAlbumRequest.url = url + "/" + this.routeData.subType;
+                this.$.getAlbumRequest.generateRequest();
+            }
+
+            albumRecovered(event) {
+               
+                this.set("albumObject", event.detail.response.album);
+                let routeSong=this.songsRequestUrl;
+                this.$.getSongsRequest.url=routeSong+"/"+this.routeData.subType;
+             
+                
+                this.$.getSongsRequest.generateRequest();
+            }
+
+            songsRecovered(event){
+              
+                this.set("songsArray",event.detail.response.albumSongs);
+            }
+
+            routeDataChanged(id) {
+
+              
+            }
+
+            songSelected(event){
+                this.dispatchEvent(new CustomEvent("song-selected",{
+                    bubbles:false,
+                    composed:false,
+                    detail:event.detail
+                }))
+            }
+
+            saveUserSong(event){
+                this.dispatchEvent(new CustomEvent("user-song-saved",{
+                    bubbles:false,
+                    composed:false,
+                    detail:event.detail
+                }));
+                
+                 this.userObject.userSongs.unshift(event.detail);
+                let userRequest=this.putUserRequest;   
+                this.$.putUserRequest.url=userRequest+"/"+this.userObject._id;
+                 this.$.putUserRequest.body=this.userObject;
+                this.$.putUserRequest.generateRequest();  
+            }
+            userEdited(event){
+                this.$.toast.show();
+            }
+
+            userEditedError(){
+
+            }
+
+        }
+        window.customElements.define(SpecificAlbum.is, SpecificAlbum)
+    </script>
+</dom-module>

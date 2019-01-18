@@ -10,6 +10,8 @@
 <link rel="lazy-import" href="artist-edit.html">
 <link rel="lazy-import" href="album-edit.html">
 <link rel="lazy-import" href="login-page.html">
+<link rel="lazy-import" href="my-list-page.html">
+<link rel="lazy-import" href="specific-album.html">
 <link rel="import" href="navbar-view.html">
 <dom-module id="music-application-app">
   <template>
@@ -28,14 +30,26 @@
 
         }
       }
+
+      .searchContainer {
+        width: 100%;
+      }
+
+      paper-input {
+        margin-left: 230px;
+        margin-right: 10px;
+      }
     </style>
     <app-location route="{{route}}"></app-location>
 
     <app-route route="{{route}}" pattern="/:type/:subType" data="{{routeData}}" tail="{{subroute}}">
     </app-route>
+    <div class="searchContainer">
+      
+    </div>
     <div class="main">
       <iron-pages selected="[[page]]" attr-for-selected="name" fallback-selection="page404" role="main">
-        <list-page name="list-page" on-song-selected="selectSong"></list-page>
+        <list-page name="list-page" on-song-selected="selectSong" filter-argument="[[musicSearchArgument]]"on-user-recovered="userRecovered"></list-page>
         <admin-page name="admin-page" request-file-url="http://localhost:8000/tracks" request-db-url="http://localhost:8000/song"></admin-page>
         <admin-page-edit name="admin-page-edit" album-request-url="http://localhost:8000/album" song-request-url="http://localhost:8000/song"
           artist-request-url="http://localhost:8000/artists"></admin-page-edit>
@@ -44,8 +58,10 @@
         <album-edit get-album-route="http://localhost:8000/album" name="album-edit" get-artist-route="http://localhost:8000/artists"
           put-album-route="http://localhost:8000/album"></album-edit>
         <login-page name="login-page" user-register-url="http://localhost:8000/users" user-login-url="http://localhost:8000/users/mail"></login-page>
-    </iron-pages>
-  </div>
+        <my-list-page name="my-list-page" user-object="[[userObject]]" on-song-selected="selectSong" filter-argument="[[musicSearchArgument]]"></my-list-page>
+        <specific-album name="specific-album" route-data="[[routeData]]" album-request-url="http://localhost:8000/album" on-song-selected="selectSong" user-object="[[userObject]]"></specific-album>
+      </iron-pages>
+    </div>
     <div class="player-container">
       <music-component invisible-ctrl-buttons="true" invisible-controls="true" song-url="http://localhost:8000/track/"></music-component>
     </div>
@@ -68,7 +84,17 @@
             observer: "_pageChanged"
           },
           routeData: Object,
-          subroute: Object
+          subroute: Object,
+          musicSearchArgument: {
+            type: String,
+            value: ""
+          },
+          userObject:{
+            type:Object,
+            value(){
+              return {}
+            }
+          }
         };
       }
 
@@ -80,10 +106,10 @@
 
       _routePageChanged(page) {
 
-        if(page==="components"){
-          this.page= "list-page";
-        }else{
-          this.page=page;
+        if (page === "components") {
+          this.page = "list-page";
+        } else {
+          this.page = page;
         }
       }
 
@@ -108,6 +134,11 @@
         musicComponent.set("songName", event.detail.songUrl);
         musicComponent.selectSong();
       }
+
+      userRecovered(event){
+        this.set("userObject",event.detail);
+      }
+
     }
 
     window.customElements.define(MusicApplicationApp.is, MusicApplicationApp);

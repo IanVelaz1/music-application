@@ -78,7 +78,6 @@
 
             userLogin(event) {
                 let userObject = event.detail.response.user[0];
-                localStorage.clear();
                 localStorage.setItem("userId", userObject._id);
                 location.reload();
             }
