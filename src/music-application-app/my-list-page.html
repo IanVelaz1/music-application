@@ -1,0 +1,120 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/music-list/music-list.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+
+
+<dom-module id="my-list-page">
+    <template>
+        <style>
+        :host {
+                display: block;
+            }
+
+            .main {
+                margin-left: 200px;
+                /* Same as the width of the sidenav */
+                font-size: 28px;
+                background: #0099F7;  /* fallback for old browsers */
+background: -webkit-linear-gradient(to bottom, #F11712, #0099F7);  /* Chrome 10-25, Safari 5.1-6 */
+background: linear-gradient(to bottom, #F11712, #0099F7); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+                color: white;
+            }
+
+            .container {
+                border: 1px solid black;
+                height: 100vh;
+                padding: 0px 10px;
+            }
+
+            paper-input{
+                --paper-input-container-color:white;
+                --paper-input-container-focus-color:#377bc2;
+                --paper-input-container-input-color:white;
+            }
+            
+        </style>
+        <navbar-view id="navbar" on-user-recovered="userRecovered"></navbar-view>
+        <div class="main">
+            <div class="container">
+                <paper-input label="search for a song" value="{{filterArgument}}"></paper-input>
+                <h3>My Music List</h3>
+                <music-list songs-list="[[userObject.userSongs]]" hidden-list="false" on-song-selected="selectSong"
+                    filter-argument="[[filterArgument]]" on-user-song-saved="saveUserSong"></music-list>
+                    <paper-toast id="toast">Song added to user</paper-toast>
+            </div>
+        </div>
+    </template>
+    <script>
+        class MyListPage extends Polymer.Element{
+            static get is(){
+                return "my-list-page"
+            }
+            static get properties(){
+                return {
+                    filterArgument: {
+                        type: String,
+                        value: ""
+                    },
+                    userObject:{
+                        type:Object,
+                        value(){
+                            return {}
+                        }
+                    },
+                    putUserRequest:{
+                        type:String,
+                        value:"http://localhost:8000/users"
+                    }
+                }
+            }
+
+            
+            connectedCallback(){
+                super.connectedCallback();
+
+            }
+
+            selectSong(event) {
+                this.dispatchEvent(new CustomEvent("song-selected", {
+                    bubbles: false,
+                    composed: false,
+                    detail: event.detail
+                }))
+            }
+
+            userRecovered(event){
+                this.dispatchEvent(new CustomEvent("user-recovered",{
+                    bubbles:false,
+                    composed:false,
+                    detail:event.detail
+                }))
+                this.set("userObject",event.detail);
+            }
+
+            saveUserSong(event){
+                this.dispatchEvent(new CustomEvent("user-song-saved",{
+                    bubbles:false,
+                    composed:false,
+                    detail:event.detail
+                }));
+                this.userObject.userSongs.unshift(event.detail);
+                let userRequest=this.putUserRequest;   
+                this.$.putUserRequest.url=userRequest+"/"+this.userObject._id;
+                 this.$.putUserRequest.body=this.userObject;
+                this.$.putUserRequest.generateRequest(); 
+            }
+
+            userEdited(event){
+                this.$.toast.show();
+            }
+
+            userEditedError(){
+
+            }
+
+        }
+        window.customElements.define(MyListPage.is,MyListPage);
+    </script>
+</dom-module>

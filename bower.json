@@ -8,7 +8,10 @@
     "app-route": "PolymerElements/app-route#2.1.2",
     "music-component": "jusolete/music-component-for-app",
     "login-music": "jusolete/music-login-app",
-    "paper-toast": "PolymerElements/paper-toast#2.1.2"
+    "paper-toast": "PolymerElements/paper-toast#2.1.2",
+    "music-list": "jusolete/music-list-for-app",
+    "iron-icons": "PolymerElements/iron-icons#2.1.1",
+    "list-music": "https://github.com/HAlejandro88/especific-album.git"
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#^6.0.0",
