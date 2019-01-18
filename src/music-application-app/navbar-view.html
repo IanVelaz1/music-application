@@ -48,6 +48,16 @@
                 background-color: rgba(0, 0, 0, 0);
                 height: 150px;
             }
+
+            .smallContainer {
+                width: 100%;
+                text-align: center;
+            }
+
+            paper-button {
+                color: white;
+                margin: 0 auto;
+            }
         </style>
         <iron-ajax id="getUserRequest" method="get" url="[[getUserUrl]]" handle-as="json" on-response="userRecovered"
             on-error="errorRecovered">
@@ -56,16 +66,23 @@
             <div class="userContainer" style="text-align: center; ">
                 <img src="https://centrik.in/wp-content/uploads/2017/02/user-image-.png" style="max-height: 70%; color: white;"
                     alt="">
-                <div class="userText" hidden$="[[userNotLogged]]">
+                <div class="userText" hidden$="[[userLogged]]">
                     <a name="login-page" href="/list-page/[[userObject._id]]">[[userObject.userName]]</a>
                 </div>
-                <div class="loginText" hidden$="[[userLogged]]">
+                <div class="loginText" hidden$="[[userNotLogged]]">
                     <a name="login-page" href="/login-page/main">Login/Register</a>
                 </div>
             </div>
+            <br>
+            <div class="myList" hidden$="[[userLogged]]"><a name="my-list-page" href="/my-list-page/main" on-click="refreshUser">My
+                    list</a></div>
             <a name="list-page" href="/list-page/main">List</a>
-            <a href="#services">Services</a>
             <a name="admin-page" href="/admin-page/main">Admin</a>
+            <a href="#services">About us</a>
+            <br>
+            <div class="smallContainer" hidden$="[[userLogged]]">
+                <paper-button on-tap="logOut">LogOut</paper-button>
+            </div>
         </div>
     </template>
     <script>
@@ -95,30 +112,53 @@
                     }
                 }
             }
-            connectedCallback() {
-                super.connectedCallback();
-                let id = localStorage.getItem("userId");
-                if (id.length > 1) {
-                    let requestUrl = "http://localhost:8000/user/" + id;
-                    this.$.getUserRequest.url = requestUrl;
-                    this.$.getUserRequest.generateRequest();
-                } else {
-                    this.set("userLogged", false);
-                    this.set("userNotLogged", true);
-                }
 
+            ready() {
+                super.ready();
+                let id = localStorage.getItem("userId");
+                if (id) {
+                    if (id.length > 0) {
+                        let requestUrl = "http://localhost:8000/user/" + id;
+                        this.$.getUserRequest.url = requestUrl;
+                        this.$.getUserRequest.generateRequest();
+                    } 
+                }else {
+                        this.set("userLogged", true);
+                        this.set("userNotLogged", false);
+                    }
 
             }
 
             userRecovered(event) {
                 let user = event.detail.response.user;
-                if (user._id.length > 1) {
-                    this.set("userObject", user);
-                    this.set("userLogged", true);
+
+
+                if (localStorage.getItem("userId").length > 0) {
+                    this.set("userNotLogged", true);
+                    this.set("userLogged", false);
+                } else {
                     this.set("userNotLogged", false);
+                    this.set("userLogged", true);
+
                 }
+                this.set("userObject", user);
+                this.dispatchEvent(new CustomEvent("user-recovered", {
+                    bubbles: false,
+                    composed: false,
+                    detail: user
+                }))
 
             }
+
+            logOut() {
+                localStorage.removeItem("userId");
+                location.reload();
+            }
+
+            refreshUser() {
+                location.reload();
+            }
+
         }
         window.customElements.define(NavbarView.is, NavbarView);
     </script>

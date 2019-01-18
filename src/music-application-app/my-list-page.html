@@ -3,10 +3,11 @@
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 
-<dom-module id="list-page">
+
+<dom-module id="my-list-page">
     <template>
         <style>
-            :host {
+        :host {
                 display: block;
             }
 
@@ -14,13 +15,10 @@
                 margin-left: 200px;
                 /* Same as the width of the sidenav */
                 font-size: 28px;
-                /* Increased text to enable scrolling */
-                background: #e96443;
-                /* fallback for old browsers */
-                background: -webkit-linear-gradient(to bottom, #904e95, #e96443);
-                /* Chrome 10-25, Safari 5.1-6 */
-                background: linear-gradient(to bottom, #904e95, #e96443);
-                /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+                background: #0099F7;  /* fallback for old browsers */
+background: -webkit-linear-gradient(to bottom, #F11712, #0099F7);  /* Chrome 10-25, Safari 5.1-6 */
+background: linear-gradient(to bottom, #F11712, #0099F7); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
                 color: white;
             }
 
@@ -32,36 +30,28 @@
 
             paper-input{
                 --paper-input-container-color:white;
-                --paper-input-container-focus-color:#d96051;
+                --paper-input-container-focus-color:#377bc2;
                 --paper-input-container-input-color:white;
             }
+            
         </style>
-        <iron-ajax
-         id="putUserRequest"
-         method="put"
-         handle-as="json"
-         content-type="application/json"
-         on-response="userEdited"
-         on-error="userEditedError"
-        ></iron-ajax>
         <navbar-view id="navbar" on-user-recovered="userRecovered"></navbar-view>
         <div class="main">
             <div class="container">
                 <paper-input label="search for a song" value="{{filterArgument}}"></paper-input>
-                <h3>Music List</h3>
-                <music-list request-url="http://localhost:8000/song" hidden-list="false" on-song-selected="selectSong"
+                <h3>My Music List</h3>
+                <music-list songs-list="[[userObject.userSongs]]" hidden-list="false" on-song-selected="selectSong"
                     filter-argument="[[filterArgument]]" on-user-song-saved="saveUserSong"></music-list>
                     <paper-toast id="toast">Song added to user</paper-toast>
             </div>
         </div>
-
     </template>
     <script>
-        class listPage extends Polymer.Element {
-            static get is() {
-                return 'list-page'
+        class MyListPage extends Polymer.Element{
+            static get is(){
+                return "my-list-page"
             }
-            static get properties() {
+            static get properties(){
                 return {
                     filterArgument: {
                         type: String,
@@ -80,6 +70,7 @@
                 }
             }
 
+            
             connectedCallback(){
                 super.connectedCallback();
 
@@ -124,6 +115,6 @@
             }
 
         }
-        window.customElements.define(listPage.is, listPage);
+        window.customElements.define(MyListPage.is,MyListPage);
     </script>
 </dom-module>
